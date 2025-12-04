@@ -31,7 +31,7 @@ export const Sidebar = () => {
             <Wallet className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">FinTrack</h1>
+            <h1 className="text-lg font-bold text-foreground">Spendr</h1>
             <p className="text-xs text-muted-foreground">Personal Finance</p>
           </div>
         </div>
