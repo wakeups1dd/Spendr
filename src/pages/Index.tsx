@@ -39,7 +39,7 @@ const Index = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
               <Wallet className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">FinTrack</span>
+            <span className="text-xl font-bold text-foreground">Spendr</span>
           </div>
         </nav>
 
@@ -208,7 +208,7 @@ const Index = () => {
             Ready to start tracking?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Join thousands of users who have taken control of their finances with FinTrack.
+            Join thousands of users who have taken control of their finances with Spendr.
           </p>
           <Button
             variant="default"
@@ -225,7 +225,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card py-8">
         <div className="mx-auto max-w-7xl px-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} FinTrack. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Spendr. All rights reserved.</p>
         </div>
       </footer>
     </div>
