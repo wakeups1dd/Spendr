@@ -105,7 +105,7 @@ export const TransactionList = ({
                 <div
                   key={transaction.id}
                   className={cn(
-                    'flex items-center justify-between p-4 transition-colors hover:bg-secondary/50',
+                    'flex flex-col sm:flex-row sm:items-center justify-between p-4 transition-colors hover:bg-secondary/50 gap-4',
                     index > 0 && 'border-t border-border'
                   )}
                 >
@@ -146,7 +146,7 @@ export const TransactionList = ({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
                     <p
                       className={cn(
                         'text-lg font-semibold',

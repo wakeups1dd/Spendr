@@ -18,6 +18,10 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+
+
+
+
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading, signInWithGoogle, signUpWithEmail, signInWithEmail } = useAuth();
@@ -79,9 +83,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Hero Section */}
-      <header className="relative overflow-hidden">
+      <header className="relative">
         <div className="absolute inset-0 gradient-primary opacity-[0.03]" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-income/5 to-transparent" />
 
