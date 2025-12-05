@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Transaction, Category } from '@/types/finance';
-import { mockTransactions, categories as defaultCategories } from '@/data/mockData';
+import { categories as defaultCategories } from '@/data/dataHelpers';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface FinanceContextType {
@@ -10,13 +10,15 @@ interface FinanceContextType {
   deleteTransaction: (id: string) => void;
   categories: Category[];
   addCategory: (category: Omit<Category, 'id'>) => void;
+  updateCategory: (id: string, category: Partial<Category>) => void;
+  deleteCategory: (id: string) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
 
   const addTransaction = useCallback((transaction: Omit<Transaction, 'id' | 'userId' | 'createdAt'>) => {
@@ -47,6 +49,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setCategories(prev => [...prev, newCategory]);
   }, []);
 
+  const updateCategory = useCallback((id: string, updates: Partial<Category>) => {
+    setCategories(prev =>
+      prev.map(c => (c.id === id ? { ...c, ...updates } : c))
+    );
+  }, []);
+
+  const deleteCategory = useCallback((id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
+  }, []);
+
   return (
     <FinanceContext.Provider
       value={{
@@ -56,6 +68,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deleteTransaction,
         categories,
         addCategory,
+        updateCategory,
+        deleteCategory,
       }}
     >
       {children}
@@ -70,4 +84,3 @@ export const useFinance = () => {
   }
   return context;
 };
-

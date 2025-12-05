@@ -12,6 +12,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -19,28 +29,29 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { 
-  UtensilsCrossed, 
-  Car, 
-  ShoppingBag, 
-  Gamepad2, 
-  Zap, 
+import {
+  UtensilsCrossed,
+  Car,
+  ShoppingBag,
+  Gamepad2,
+  Zap,
   Heart,
-  Briefcase, 
-  Laptop, 
-  TrendingUp, 
-  Home, 
-  Plane, 
+  Briefcase,
+  Laptop,
+  TrendingUp,
+  Home,
+  Plane,
   Gift,
-  Coffee, 
-  Music, 
-  Book, 
-  Dumbbell, 
+  Coffee,
+  Music,
+  Book,
+  Dumbbell,
   MoreHorizontal,
   LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { Category } from '@/types/finance';
 
 const iconMap: Record<string, LucideIcon> = {
   UtensilsCrossed,
@@ -79,8 +90,10 @@ const iconOptions = [
 ];
 
 const Categories = () => {
-  const { categories, addCategory } = useFinance();
+  const { categories, addCategory, updateCategory, deleteCategory } = useFinance();
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState({
     name: '',
     icon: 'MoreHorizontal',
@@ -102,6 +115,29 @@ const Categories = () => {
       color: 'category-other',
       type: 'expense',
     });
+  };
+
+  const handleEditCategory = () => {
+    if (!editingCategory) return;
+    if (!editingCategory.name.trim()) {
+      toast.error('Please enter a category name');
+      return;
+    }
+    updateCategory(editingCategory.id, editingCategory);
+    toast.success('Category updated successfully');
+    setEditingCategory(null);
+  };
+
+  const handleDeleteCategory = () => {
+    if (deleteId) {
+      deleteCategory(deleteId);
+      toast.success('Category deleted');
+      setDeleteId(null);
+    }
+  };
+
+  const openEditDialog = (category: Category) => {
+    setEditingCategory({ ...category });
   };
 
   const getIcon = (iconName: string) => {
@@ -162,10 +198,20 @@ const Categories = () => {
                   </p>
                 </div>
                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openEditDialog(category)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive"
+                    onClick={() => setDeleteId(category.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -200,10 +246,20 @@ const Categories = () => {
                   </p>
                 </div>
                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openEditDialog(category)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive"
+                    onClick={() => setDeleteId(category.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -312,8 +368,132 @@ const Categories = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Category Dialog */}
+      <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+            <DialogDescription>
+              Update category details
+            </DialogDescription>
+          </DialogHeader>
+          {editingCategory && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Category Name</Label>
+                <Input
+                  id="edit-name"
+                  placeholder="e.g., Groceries, Rent, etc."
+                  value={editingCategory.name}
+                  onChange={(e) =>
+                    setEditingCategory({ ...editingCategory, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select
+                  value={editingCategory.type}
+                  onValueChange={(value: 'income' | 'expense' | 'both') =>
+                    setEditingCategory({ ...editingCategory, type: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="expense">Expense</SelectItem>
+                    <SelectItem value="income">Income</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Color</Label>
+                <div className="flex flex-wrap gap-2">
+                  {categoryColors.map((color) => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      className={cn(
+                        'h-8 w-8 rounded-lg transition-all',
+                        color.bg,
+                        editingCategory.color === color.value
+                          ? 'ring-2 ring-foreground ring-offset-2'
+                          : 'hover:scale-110'
+                      )}
+                      onClick={() =>
+                        setEditingCategory({ ...editingCategory, color: color.value })
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Icon</Label>
+                <div className="grid grid-cols-6 gap-2">
+                  {iconOptions.map((icon) => (
+                    <button
+                      key={icon}
+                      type="button"
+                      className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-lg border transition-all',
+                        editingCategory.icon === icon
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50'
+                      )}
+                      onClick={() => setEditingCategory({ ...editingCategory, icon })}
+                    >
+                      {getIcon(icon)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setEditingCategory(null)}
+                >
+                  Cancel
+                </Button>
+                <Button className="flex-1" onClick={handleEditCategory}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this category? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCategory}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };
 
 export default Categories;
+

@@ -3,11 +3,11 @@ import { useFinance } from '@/contexts/FinanceContext';
 import { Transaction } from '@/types/finance';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  Trash2, 
-  Edit, 
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  Trash2,
+  Edit,
   MoreVertical,
   MessageSquare,
   FileText
@@ -129,8 +129,8 @@ export const TransactionList = () => {
                         transaction.type === 'income' ? 'text-income' : 'text-expense'
                       )}
                     >
-                      {transaction.type === 'income' ? '+' : '-'}$
-                      {transaction.amount.toLocaleString('en-US', {
+                      {transaction.type === 'income' ? '+' : '-'}₹
+                      {transaction.amount.toLocaleString('en-IN', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}

@@ -5,7 +5,7 @@ import { CategoryChart } from '@/components/dashboard/CategoryChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { useFinance } from '@/contexts/FinanceContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { getDashboardStats } from '@/data/mockData';
+import { getDashboardStats } from '@/data/dataHelpers';
 import { Wallet, TrendingUp, TrendingDown, CreditCard, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -18,9 +18,9 @@ const Dashboard = () => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);

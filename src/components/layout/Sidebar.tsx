@@ -1,15 +1,14 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ArrowLeftRight, 
-  Tags, 
-  User, 
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  Tags,
+  User,
   LogOut,
   Wallet,
-  TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useFinance } from '@/contexts/FinanceContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,7 +19,7 @@ const navItems = [
 
 export const Sidebar = () => {
   const location = useLocation();
-  const { logout, user } = useFinance();
+  const { user, signOut } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card">
@@ -62,21 +61,21 @@ export const Sidebar = () => {
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-3 rounded-lg bg-secondary p-3">
             <img
-              src={user?.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo'}
+              src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'}
               alt="User avatar"
               className="h-10 w-10 rounded-full bg-muted"
             />
             <div className="flex-1 min-w-0">
               <p className="truncate text-sm font-medium text-foreground">
-                {user?.name || 'Demo User'}
+                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {user?.email || 'demo@example.com'}
+                {user?.email || ''}
               </p>
             </div>
           </div>
           <button
-            onClick={logout}
+            onClick={signOut}
             className="mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />
@@ -87,3 +86,4 @@ export const Sidebar = () => {
     </aside>
   );
 };
+

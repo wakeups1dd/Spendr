@@ -59,8 +59,8 @@ export const RecentTransactions = () => {
                   transaction.type === 'income' ? 'text-income' : 'text-expense'
                 )}
               >
-                {transaction.type === 'income' ? '+' : '-'}$
-                {transaction.amount.toLocaleString('en-US', {
+                {transaction.type === 'income' ? '+' : '-'}₹
+                {transaction.amount.toLocaleString('en-IN', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
