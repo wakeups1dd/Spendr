@@ -7,6 +7,9 @@ interface AuthContextType {
     session: Session | null;
     loading: boolean;
     signInWithGoogle: () => Promise<void>;
+    signUpWithEmail: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean }>;
+    signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
+    updateProfile: (data: { full_name?: string; avatar_url?: string }) => Promise<{ error: string | null }>;
     signOut: () => Promise<void>;
 }
 
@@ -60,12 +63,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
+    const signUpWithEmail = useCallback(async (email: string, password: string) => {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+
+        if (error) {
+            return { error: error.message, needsConfirmation: false };
+        }
+
+        // Check if email confirmation is required
+        // If user exists but identities is empty, confirmation is needed
+        const needsConfirmation = data.user && data.user.identities?.length === 0
+            ? false  // User already exists
+            : !data.session; // No session means confirmation is needed
+
+        return { error: null, needsConfirmation };
+    }, []);
+
+    const signInWithEmail = useCallback(async (email: string, password: string) => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            return { error: error.message };
+        }
+
+        return { error: null };
+    }, []);
+
     const signOut = useCallback(async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.error('Error signing out:', error.message);
             throw error;
         }
+    }, []);
+
+    const updateProfile = useCallback(async (data: { full_name?: string; avatar_url?: string }) => {
+        const { error } = await supabase.auth.updateUser({
+            data: data,
+        });
+
+        if (error) {
+            return { error: error.message };
+        }
+
+        // Refresh the user data
+        const { data: { user: updatedUser } } = await supabase.auth.getUser();
+        if (updatedUser) {
+            setUser(updatedUser);
+        }
+
+        return { error: null };
     }, []);
 
     return (
@@ -75,6 +131,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 session,
                 loading,
                 signInWithGoogle,
+                signUpWithEmail,
+                signInWithEmail,
+                updateProfile,
                 signOut,
             }}
         >
@@ -90,3 +149,4 @@ export const useAuth = () => {
     }
     return context;
 };
+

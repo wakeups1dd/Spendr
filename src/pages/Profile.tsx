@@ -22,13 +22,50 @@ import {
   Shield,
   Bell,
   LogOut,
+  Camera,
+  Save,
+  Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
 
 const Profile = () => {
-  const { transactions } = useFinance();
-  const { user, signOut } = useAuth();
+  const { transactions, categories } = useFinance();
+  const { user, signOut, updateProfile } = useAuth();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.user_metadata?.full_name || '');
+      setAvatarUrl(user.user_metadata?.avatar_url || user.user_metadata?.picture || '');
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateProfile({
+        full_name: fullName,
+        avatar_url: avatarUrl,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleExport = () => {
     const headers = ['Date', 'Amount', 'Type', 'Category', 'Merchant', 'Notes'];
@@ -73,21 +110,66 @@ const Profile = () => {
           {/* Profile Card */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>
-                Your personal information from Google
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Profile Information</CardTitle>
+                  <CardDescription>
+                    Update your personal information
+                  </CardDescription>
+                </div>
+                {!isEditing ? (
+                  <Button variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setFullName(user?.user_metadata?.full_name || '');
+                        setAvatarUrl(user?.user_metadata?.avatar_url || user?.user_metadata?.picture || '');
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveProfile} disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
-                <img
-                  src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo'}
-                  alt="Profile"
-                  className="h-24 w-24 rounded-full border-4 border-border"
-                />
+                <div className="relative">
+                  <img
+                    src={isEditing ? avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user' : (user?.user_metadata?.avatar_url || user?.user_metadata?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user')}
+                    alt="Profile"
+                    className="h-24 w-24 rounded-full border-4 border-border object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=user';
+                    }}
+                  />
+                  {isEditing && (
+                    <div className="absolute -bottom-1 -right-1 rounded-full bg-primary p-1.5">
+                      <Camera className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
                 <div>
                   <h3 className="text-xl font-semibold text-foreground">
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                   </h3>
                   <p className="text-muted-foreground">{user?.email}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -107,7 +189,12 @@ const Profile = () => {
                     <User className="h-4 w-4 text-muted-foreground" />
                     Full Name
                   </Label>
-                  <Input value={user?.user_metadata?.full_name || ''} disabled />
+                  <Input
+                    value={isEditing ? fullName : (user?.user_metadata?.full_name || '')}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Enter your name"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
@@ -118,9 +205,28 @@ const Profile = () => {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground">
-                Your profile information is synced from your Google account
-              </p>
+              {isEditing && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Camera className="h-4 w-4 text-muted-foreground" />
+                    Profile Picture URL
+                  </Label>
+                  <Input
+                    value={avatarUrl}
+                    onChange={(e) => setAvatarUrl(e.target.value)}
+                    placeholder="https://example.com/your-photo.jpg"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter a URL to an image for your profile picture
+                  </p>
+                </div>
+              )}
+
+              {!isEditing && (
+                <p className="text-sm text-muted-foreground">
+                  Click "Edit Profile" to update your name and profile picture
+                </p>
+              )}
             </CardContent>
           </Card>
 
