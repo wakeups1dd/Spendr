@@ -9,7 +9,7 @@ export const CategoryChart = () => {
   const hasData = categoryData.length > 0;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-foreground">Spending by Category</h3>
         <p className="text-sm text-muted-foreground">Where your money goes</p>
