@@ -269,7 +269,7 @@ const Index = () => {
                 <div className="mb-6 flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Total Balance</p>
-                    <p className="text-3xl font-bold text-foreground">$24,582.00</p>
+                    <p className="text-3xl font-bold text-foreground">₹24,582.00</p>
                   </div>
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-income/10 text-income">
                     <TrendingUp className="h-6 w-6" />
@@ -278,18 +278,18 @@ const Index = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-income/10 p-4">
                     <p className="text-xs text-muted-foreground">Income</p>
-                    <p className="text-xl font-semibold text-income">+$6,200</p>
+                    <p className="text-xl font-semibold text-income">₹6,200</p>
                   </div>
                   <div className="rounded-xl bg-expense/10 p-4">
                     <p className="text-xs text-muted-foreground">Expenses</p>
-                    <p className="text-xl font-semibold text-expense">-$2,847</p>
+                    <p className="text-xl font-semibold text-expense">₹2,847</p>
                   </div>
                 </div>
                 <div className="mt-6 space-y-3">
                   {[
-                    { name: 'Salary', amount: '+$5,000', type: 'income' },
-                    { name: 'Groceries', amount: '-$234.50', type: 'expense' },
-                    { name: 'Freelance', amount: '+$1,200', type: 'income' },
+                    { name: 'Salary', amount: '₹15,000', type: 'income' },
+                    { name: 'Groceries', amount: '₹234.50', type: 'expense' },
+                    { name: 'Freelance', amount: '₹1,200', type: 'income' },
                   ].map((item, i) => (
                     <div
                       key={i}
