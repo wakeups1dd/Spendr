@@ -197,14 +197,16 @@ const Profile = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
                 <div className="relative">
-                  <img
-                    src={isEditing ? avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user' : (user?.user_metadata?.avatar_url || user?.user_metadata?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user')}
-                    alt="Profile"
-                    className="h-24 w-24 rounded-full border-4 border-border object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=user';
-                    }}
-                  />
+                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-border bg-secondary">
+                    <img
+                      src={isEditing ? (avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${fullName || 'User'}`) : (user?.user_metadata?.avatar_url || user?.user_metadata?.picture || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.user_metadata?.full_name || 'User'}`)}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=User`;
+                      }}
+                    />
+                  </div>
                   {isEditing && (
                     <div className="absolute -bottom-1 -right-1 rounded-full bg-primary p-1.5">
                       <Camera className="h-4 w-4 text-primary-foreground" />
