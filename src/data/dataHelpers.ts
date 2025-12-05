@@ -31,6 +31,82 @@ export const getDashboardStats = (transactions: Transaction[]): DashboardStats =
   };
 };
 
+// Calculate month-over-month comparison
+export interface MonthlyComparison {
+  incomeChange: number;
+  expenseChange: number;
+  balanceChange: number;
+  incomeTrend: 'up' | 'down' | 'neutral';
+  expenseTrend: 'up' | 'down' | 'neutral';
+  balanceTrend: 'up' | 'down' | 'neutral';
+}
+
+export const getMonthlyComparison = (transactions: Transaction[]): MonthlyComparison => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  // Get last month (handle year boundary)
+  const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+  // Filter transactions for current month
+  const currentMonthTransactions = transactions.filter(t => {
+    const date = new Date(t.date);
+    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  });
+
+  // Filter transactions for last month
+  const lastMonthTransactions = transactions.filter(t => {
+    const date = new Date(t.date);
+    return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+  });
+
+  // Calculate current month stats
+  const currentIncome = currentMonthTransactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const currentExpense = currentMonthTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const currentBalance = currentIncome - currentExpense;
+
+  // Calculate last month stats
+  const lastIncome = lastMonthTransactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const lastExpense = lastMonthTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const lastBalance = lastIncome - lastExpense;
+
+  // Calculate percentage changes
+  const calcChange = (current: number, last: number): number => {
+    if (last === 0) return current > 0 ? 100 : 0;
+    return ((current - last) / last) * 100;
+  };
+
+  const incomeChange = calcChange(currentIncome, lastIncome);
+  const expenseChange = calcChange(currentExpense, lastExpense);
+  const balanceChange = calcChange(currentBalance, lastBalance);
+
+  // Determine trends
+  const getTrend = (change: number): 'up' | 'down' | 'neutral' => {
+    if (change > 0) return 'up';
+    if (change < 0) return 'down';
+    return 'neutral';
+  };
+
+  return {
+    incomeChange,
+    expenseChange,
+    balanceChange,
+    incomeTrend: getTrend(incomeChange),
+    expenseTrend: getTrend(expenseChange),
+    balanceTrend: getTrend(balanceChange),
+  };
+};
+
 // Generate chart data from actual transactions
 export const getMonthlySpendingData = (transactions: Transaction[]) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

@@ -5,7 +5,7 @@ import { CategoryChart } from '@/components/dashboard/CategoryChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { useFinance } from '@/contexts/FinanceContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { getDashboardStats } from '@/data/dataHelpers';
+import { getDashboardStats, getMonthlyComparison } from '@/data/dataHelpers';
 import { Wallet, TrendingUp, TrendingDown, CreditCard, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const { transactions } = useFinance();
   const { user } = useAuth();
   const stats = getDashboardStats(transactions);
+  const comparison = getMonthlyComparison(transactions);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
 
   const formatCurrency = (amount: number) => {
@@ -24,6 +25,18 @@ const Dashboard = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const formatPercentage = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  // For expenses, "down" is actually good (spending less)
+  const getExpenseTrendDirection = (trend: 'up' | 'down' | 'neutral') => {
+    if (trend === 'up') return 'down'; // Spending more is bad
+    if (trend === 'down') return 'up'; // Spending less is good
+    return 'neutral';
   };
 
   return (
@@ -52,26 +65,26 @@ const Dashboard = () => {
             value={formatCurrency(stats.balance)}
             subtitle="vs last month"
             icon={<Wallet className="h-6 w-6" />}
-            trend="up"
-            trendValue="+12.5%"
+            trend={comparison.balanceTrend === 'neutral' ? undefined : comparison.balanceTrend}
+            trendValue={comparison.balanceChange !== 0 ? formatPercentage(comparison.balanceChange) : undefined}
             variant="balance"
           />
           <StatCard
             title="Total Income"
             value={formatCurrency(stats.totalIncome)}
-            subtitle="This month"
+            subtitle="vs last month"
             icon={<TrendingUp className="h-6 w-6" />}
-            trend="up"
-            trendValue="+8.2%"
+            trend={comparison.incomeTrend === 'neutral' ? undefined : comparison.incomeTrend}
+            trendValue={comparison.incomeChange !== 0 ? formatPercentage(comparison.incomeChange) : undefined}
             variant="income"
           />
           <StatCard
             title="Total Expenses"
             value={formatCurrency(stats.totalExpense)}
-            subtitle="This month"
+            subtitle="vs last month"
             icon={<TrendingDown className="h-6 w-6" />}
-            trend="down"
-            trendValue="-3.1%"
+            trend={comparison.expenseTrend === 'neutral' ? undefined : getExpenseTrendDirection(comparison.expenseTrend)}
+            trendValue={comparison.expenseChange !== 0 ? formatPercentage(comparison.expenseChange) : undefined}
             variant="expense"
           />
           <StatCard
@@ -104,3 +117,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
