@@ -135,6 +135,116 @@ export const getMonthlySpendingData = (transactions: Transaction[]) => {
   return monthlyData.slice(startIndex, currentMonth + 1);
 };
 
+// Generate spending data by different time periods
+export type TimePeriod = 'days' | 'weeks' | 'months' | 'years';
+
+export const getSpendingDataByPeriod = (transactions: Transaction[], period: TimePeriod) => {
+  const now = new Date();
+
+  switch (period) {
+    case 'days': {
+      // Last 7 days
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+        const dayTransactions = transactions.filter(t => t.date === dateStr);
+        const income = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+        days.push({ label: dayName, income, expense });
+      }
+      return days;
+    }
+
+    case 'weeks': {
+      // Last 4 weeks
+      const weeks = [];
+      for (let i = 3; i >= 0; i--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+
+        const weekTransactions = transactions.filter(t => {
+          const date = new Date(t.date);
+          return date >= weekStart && date <= weekEnd;
+        });
+
+        const income = weekTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = weekTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+        weeks.push({ label: `Week ${4 - i}`, income, expense });
+      }
+      return weeks;
+    }
+
+    case 'months': {
+      // Last 6 months (same as getMonthlySpendingData)
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const currentYear = now.getFullYear();
+      const data = [];
+
+      for (let i = 5; i >= 0; i--) {
+        let monthIndex = now.getMonth() - i;
+        let year = currentYear;
+        if (monthIndex < 0) {
+          monthIndex += 12;
+          year -= 1;
+        }
+
+        const monthTransactions = transactions.filter(t => {
+          const date = new Date(t.date);
+          return date.getMonth() === monthIndex && date.getFullYear() === year;
+        });
+
+        const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+        data.push({ label: months[monthIndex], income, expense });
+      }
+      return data;
+    }
+
+    case 'years': {
+      // Last 1 year (12 months)
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const data = [];
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      for (let i = 11; i >= 0; i--) {
+        let monthIndex = currentMonth - i;
+        let year = currentYear;
+
+        if (monthIndex < 0) {
+          monthIndex += 12;
+          year -= 1;
+        }
+
+        const monthTransactions = transactions.filter(t => {
+          const date = new Date(t.date);
+          return date.getMonth() === monthIndex && date.getFullYear() === year;
+        });
+
+        const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+        // Format: "Jan 24"
+        const yearShort = year.toString().slice(-2);
+        data.push({ label: `${months[monthIndex]} '${yearShort}`, income, expense });
+      }
+      return data;
+    }
+
+    default:
+      return [];
+  }
+};
+
 // Generate category spending data from actual transactions
 export const getCategorySpendingData = (transactions: Transaction[], categoryList: Category[]) => {
   const expenseTransactions = transactions.filter(t => t.type === 'expense');

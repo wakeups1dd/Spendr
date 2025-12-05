@@ -256,10 +256,6 @@ const Index = () => {
                   </>
                 )}
               </div>
-
-              <p className="mt-6 text-sm text-muted-foreground">
-                Free to use • No credit card required • Bank-level security
-              </p>
             </div>
 
             {/* Hero illustration */}
@@ -368,7 +364,7 @@ const Index = () => {
             Ready to start tracking?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Join thousands of users who have taken control of their finances with Spendr.
+            Join users who have taken control of their finances with Spendr.
           </p>
           <Button
             variant="default"

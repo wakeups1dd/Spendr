@@ -31,7 +31,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
-export const TransactionList = () => {
+interface TransactionListProps {
+  searchQuery?: string;
+  filterType?: string;
+  categoryFilter?: string;
+}
+
+export const TransactionList = ({
+  searchQuery = '',
+  filterType = 'all',
+  categoryFilter = 'all'
+}: TransactionListProps) => {
   const { transactions, deleteTransaction } = useFinance();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -54,8 +64,22 @@ export const TransactionList = () => {
     }
   };
 
+  // Filter transactions
+  const filteredTransactions = transactions.filter(t => {
+    const matchesSearch =
+      t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.amount.toString().includes(searchQuery);
+
+    const matchesType = filterType === 'all' || t.type === filterType;
+    const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
+
+    return matchesSearch && matchesType && matchesCategory;
+  });
+
   // Group transactions by date
-  const groupedTransactions = transactions.reduce((groups, transaction) => {
+  const groupedTransactions = filteredTransactions.reduce((groups, transaction) => {
     const date = transaction.date;
     if (!groups[date]) {
       groups[date] = [];

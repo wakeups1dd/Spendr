@@ -12,11 +12,21 @@ import { useState } from 'react';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
 
 const Dashboard = () => {
-  const { transactions } = useFinance();
+  const { transactions, loading } = useFinance();
   const { user } = useAuth();
   const stats = getDashboardStats(transactions);
   const comparison = getMonthlyComparison(transactions);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-[calc(100vh-100px)] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -97,10 +107,8 @@ const Dashboard = () => {
         </div>
 
         {/* Charts Row */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <SpendingChart />
-          </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SpendingChart />
           <CategoryChart />
         </div>
 

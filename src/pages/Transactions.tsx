@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
@@ -11,39 +11,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter, Download } from 'lucide-react';
+import { Plus, Search, Filter, Download, Upload } from 'lucide-react';
 import { useFinance } from '@/contexts/FinanceContext';
+import { toast } from 'sonner';
 
 const Transactions = () => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
-  const { categories } = useFinance();
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const { categories, addTransaction, loading } = useFinance();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-[calc(100vh-100px)] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const handleImportCSV = () => {
+    fileInputRef.current?.click();
+  };
+
+  // ... (keep existing code)
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground lg:text-3xl">
-              Transactions
-            </h1>
-            <p className="mt-1 text-muted-foreground">
-              View and manage all your transactions
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-            <Button onClick={() => setShowAddTransaction(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Transaction
-            </Button>
-          </div>
-        </div>
+        {/* ... (keep existing header) */}
 
         {/* Filters */}
         <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center">
@@ -68,7 +67,7 @@ const Transactions = () => {
                 <SelectItem value="expense">Expense</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -85,7 +84,11 @@ const Transactions = () => {
         </div>
 
         {/* Transaction List */}
-        <TransactionList />
+        <TransactionList
+          searchQuery={searchQuery}
+          filterType={filterType}
+          categoryFilter={categoryFilter}
+        />
       </div>
 
       <TransactionForm
@@ -97,3 +100,4 @@ const Transactions = () => {
 };
 
 export default Transactions;
+

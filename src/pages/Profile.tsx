@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import {
   Card,
@@ -16,28 +15,73 @@ import {
 import {
   User,
   Mail,
-  Calendar,
   Smartphone,
   Download,
   Shield,
-  Bell,
   LogOut,
   Camera,
   Save,
   Loader2,
+  Target,
+  TrendingDown,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
 const Profile = () => {
-  const { transactions, categories } = useFinance();
+  const { transactions, categories, loading } = useFinance();
   const { user, signOut, updateProfile } = useAuth();
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-[calc(100vh-100px)] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+
+  // Budget state
+  const [monthlyBudget, setMonthlyBudget] = useState<number>(0);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [budgetInput, setBudgetInput] = useState('');
+
+  // Load budget from localStorage
+  useEffect(() => {
+    const savedBudget = localStorage.getItem('spendr_monthly_budget');
+    if (savedBudget) {
+      setMonthlyBudget(parseFloat(savedBudget));
+    }
+  }, []);
+
+  // Calculate current month's expenses
+  const currentMonthExpenses = transactions
+    .filter(t => {
+      const date = new Date(t.date);
+      const now = new Date();
+      return t.type === 'expense' &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const budgetPercentage = monthlyBudget > 0 ? (currentMonthExpenses / monthlyBudget) * 100 : 0;
+  const remainingBudget = monthlyBudget - currentMonthExpenses;
+
+  const saveBudget = () => {
+    const budget = parseFloat(budgetInput) || 0;
+    setMonthlyBudget(budget);
+    localStorage.setItem('spendr_monthly_budget', budget.toString());
+    setIsEditingBudget(false);
+    toast.success('Monthly budget saved!');
+  };
 
   useEffect(() => {
     if (user) {
@@ -258,47 +302,105 @@ const Profile = () => {
 
         {/* Settings Cards */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Notifications */}
+          {/* Budget Settings */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Notifications
+                <Target className="h-5 w-5" />
+                Budget Settings
               </CardTitle>
               <CardDescription>
-                Configure how you receive notifications
+                Set your monthly spending limit
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Budget Alerts</p>
-                  <p className="text-sm text-muted-foreground">
-                    Get notified when you exceed budget limits
-                  </p>
-                </div>
-                <Switch defaultChecked />
+              {/* Monthly Budget Input */}
+              <div className="space-y-2">
+                <Label>Monthly Budget</Label>
+                {isEditingBudget ? (
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                      <Input
+                        type="number"
+                        value={budgetInput}
+                        onChange={(e) => setBudgetInput(e.target.value)}
+                        className="pl-8"
+                        placeholder="50000"
+                        autoFocus
+                      />
+                    </div>
+                    <Button onClick={saveBudget} size="sm">
+                      <Save className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingBudget(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    className="flex items-center justify-between rounded-lg bg-secondary p-3 cursor-pointer hover:bg-secondary/80 transition-colors"
+                    onClick={() => {
+                      setBudgetInput(monthlyBudget.toString());
+                      setIsEditingBudget(true);
+                    }}
+                  >
+                    <span className="text-lg font-semibold text-foreground">
+                      {monthlyBudget > 0 ? `₹${monthlyBudget.toLocaleString('en-IN')}` : 'Not set'}
+                    </span>
+                    <span className="text-sm text-muted-foreground">Click to edit</span>
+                  </div>
+                )}
               </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Weekly Summary</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receive a weekly spending summary
-                  </p>
-                </div>
-                <Switch />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">SMS Import Alerts</p>
-                  <p className="text-sm text-muted-foreground">
-                    Get notified of new SMS imports
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
+
+              {/* Budget Progress */}
+              {monthlyBudget > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">This month's spending</span>
+                      <span className="font-medium text-foreground">
+                        ₹{currentMonthExpenses.toLocaleString('en-IN')} / ₹{monthlyBudget.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="h-3 w-full rounded-full bg-secondary overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${budgetPercentage > 100
+                          ? 'bg-destructive'
+                          : budgetPercentage > 80
+                            ? 'bg-yellow-500'
+                            : 'bg-income'
+                          }`}
+                        style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
+                      />
+                    </div>
+
+                    {/* Status Message */}
+                    <div className={`flex items-center gap-2 text-sm ${remainingBudget < 0 ? 'text-destructive' : 'text-muted-foreground'
+                      }`}>
+                      <TrendingDown className="h-4 w-4" />
+                      {remainingBudget < 0 ? (
+                        <span>Over budget by ₹{Math.abs(remainingBudget).toLocaleString('en-IN')}</span>
+                      ) : (
+                        <span>₹{remainingBudget.toLocaleString('en-IN')} remaining this month</span>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {monthlyBudget === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Set a monthly budget to track your spending progress
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -308,33 +410,36 @@ const Profile = () => {
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="h-5 w-5" />
                 SMS Integration
+                <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                  Coming Soon
+                </span>
               </CardTitle>
               <CardDescription>
-                Connect your device to auto-import transactions
+                Auto-import transactions from bank SMS messages
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="rounded-lg bg-secondary/50 p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-income/10 text-income">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Smartphone className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-medium text-foreground">
-                      Android App Available
+                      Android App In Development
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Download our companion app to sync SMS
+                      We're building a companion app to automatically sync your bank SMS
                     </p>
                   </div>
                 </div>
               </div>
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2" disabled>
                 <Download className="h-4 w-4" />
-                Download Android App
+                Coming Soon
               </Button>
               <p className="text-center text-xs text-muted-foreground">
-                The app automatically forwards bank SMS to your account
+                For now, you can manually add transactions or import from CSV
               </p>
             </CardContent>
           </Card>
