@@ -11,7 +11,8 @@ export const categories: Category[] = [
   { id: '7', name: 'Salary', icon: 'Briefcase', color: 'category-utilities', type: 'income' },
   { id: '8', name: 'Freelance', icon: 'Laptop', color: 'category-transport', type: 'income' },
   { id: '9', name: 'Investment', icon: 'TrendingUp', color: 'category-shopping', type: 'income' },
-  { id: '10', name: 'Other', icon: 'MoreHorizontal', color: 'category-other', type: 'both' },
+  { id: '10', name: 'Other Expense', icon: 'MoreHorizontal', color: 'category-other', type: 'expense' },
+  { id: '11', name: 'Other Income', icon: 'MoreHorizontal', color: 'category-other', type: 'income' },
 ];
 
 export const getDashboardStats = (transactions: Transaction[]): DashboardStats => {

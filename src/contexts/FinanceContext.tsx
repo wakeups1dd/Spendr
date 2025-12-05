@@ -93,6 +93,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (error: any) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load data');
+      // Fallback to defaults if DB fails
+      if (categories.length === 0) {
+        setCategories(defaultCategories);
+      }
     } finally {
       setLoading(false);
     }
@@ -157,8 +161,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       toast.success('Transaction added');
     } catch (error: any) {
-      console.error('Error adding transaction:', error);
-      toast.error('Failed to add transaction');
+      console.error('Error adding transaction:', JSON.stringify(error, null, 2));
+      toast.error(`Failed to add transaction: ${error.message || 'Unknown error'}`);
       // Revert optimistic update
       setTransactions(prev => prev.filter(t => t.id !== tempId));
     }
@@ -238,8 +242,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCategories(prev => prev.map(c => c.id === tempId ? { ...c, id: data.id } : c));
       toast.success('Category added');
     } catch (error: any) {
-      console.error('Error adding category:', error);
-      toast.error('Failed to add category');
+      console.error('Error adding category:', JSON.stringify(error, null, 2));
+      toast.error(`Failed to add category: ${error.message || 'Unknown error'}`);
       setCategories(prev => prev.filter(c => c.id !== tempId));
     }
   }, [user]);

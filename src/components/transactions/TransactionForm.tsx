@@ -45,7 +45,7 @@ export const TransactionForm = ({ open, onOpenChange }: TransactionFormProps) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.amount || !formData.category || !formData.merchant) {
+    if (!formData.amount || !formData.category) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -54,7 +54,7 @@ export const TransactionForm = ({ open, onOpenChange }: TransactionFormProps) =>
       date: formData.date,
       amount: parseFloat(formData.amount),
       category: formData.category,
-      merchant: formData.merchant,
+      merchant: formData.merchant || 'Unknown', // Provide default if empty
       type,
       source: 'manual' as TransactionSource,
       notes: formData.notes || undefined,
@@ -145,7 +145,7 @@ export const TransactionForm = ({ open, onOpenChange }: TransactionFormProps) =>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="merchant">Merchant / Description *</Label>
+              <Label htmlFor="merchant">Merchant / Description (optional)</Label>
               <Input
                 id="merchant"
                 placeholder="e.g., Whole Foods, Uber, etc."
@@ -210,6 +210,6 @@ export const TransactionForm = ({ open, onOpenChange }: TransactionFormProps) =>
           </div>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 };
