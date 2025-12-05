@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { useFinance } from '@/contexts/FinanceContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { 
-  Wallet, 
-  BarChart3, 
-  Shield, 
-  Smartphone, 
+import {
+  Wallet,
+  BarChart3,
+  Shield,
+  Smartphone,
   ArrowRight,
   TrendingUp,
   PieChart
@@ -14,17 +14,20 @@ import { useEffect } from 'react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useFinance();
+  const { user, loading, signInWithGoogle } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!loading && user) {
       navigate('/dashboard');
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, loading, navigate]);
 
-  const handleGoogleLogin = () => {
-    login();
-    navigate('/dashboard');
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   return (
@@ -33,7 +36,7 @@ const Index = () => {
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-primary opacity-[0.03]" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-income/5 to-transparent" />
-        
+
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
@@ -57,10 +60,10 @@ const Index = () => {
                 </span>
               </h1>
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground lg:text-xl">
-                Track expenses, monitor income, and understand your spending patterns 
+                Track expenses, monitor income, and understand your spending patterns
                 with beautiful charts and smart SMS parsing.
               </p>
-              
+
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Button
                   variant="google"
@@ -136,9 +139,8 @@ const Index = () => {
                     >
                       <span className="text-sm text-foreground">{item.name}</span>
                       <span
-                        className={`font-medium ${
-                          item.type === 'income' ? 'text-income' : 'text-expense'
-                        }`}
+                        className={`font-medium ${item.type === 'income' ? 'text-income' : 'text-expense'
+                          }`}
                       >
                         {item.amount}
                       </span>

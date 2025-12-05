@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useFinance } from '@/contexts/FinanceContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +27,8 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 const Profile = () => {
-  const { user, logout, transactions } = useFinance();
+  const { transactions } = useFinance();
+  const { user, signOut } = useAuth();
 
   const handleExport = () => {
     const headers = ['Date', 'Amount', 'Type', 'Category', 'Merchant', 'Notes'];
@@ -79,19 +81,19 @@ const Profile = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
                 <img
-                  src={user?.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo'}
+                  src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo'}
                   alt="Profile"
                   className="h-24 w-24 rounded-full border-4 border-border"
                 />
                 <div>
                   <h3 className="text-xl font-semibold text-foreground">
-                    {user?.name}
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
                   </h3>
                   <p className="text-muted-foreground">{user?.email}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Member since{' '}
-                    {user?.createdAt
-                      ? format(new Date(user.createdAt), 'MMMM yyyy')
+                    {user?.created_at
+                      ? format(new Date(user.created_at), 'MMMM yyyy')
                       : 'December 2024'}
                   </p>
                 </div>
@@ -105,7 +107,7 @@ const Profile = () => {
                     <User className="h-4 w-4 text-muted-foreground" />
                     Full Name
                   </Label>
-                  <Input value={user?.name || ''} disabled />
+                  <Input value={user?.user_metadata?.full_name || ''} disabled />
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
@@ -264,7 +266,7 @@ const Profile = () => {
                   Sign out of your account on this device
                 </p>
               </div>
-              <Button variant="destructive" className="gap-2" onClick={logout}>
+              <Button variant="destructive" className="gap-2" onClick={signOut}>
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </Button>

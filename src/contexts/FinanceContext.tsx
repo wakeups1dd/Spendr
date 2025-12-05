@@ -1,28 +1,23 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Transaction, User, Category } from '@/types/finance';
+import { Transaction, Category } from '@/types/finance';
 import { mockTransactions, categories as defaultCategories } from '@/data/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FinanceContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
   transactions: Transaction[];
   addTransaction: (transaction: Omit<Transaction, 'id' | 'userId' | 'createdAt'>) => void;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
   categories: Category[];
   addCategory: (category: Omit<Category, 'id'>) => void;
-  isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const addTransaction = useCallback((transaction: Omit<Transaction, 'id' | 'userId' | 'createdAt'>) => {
     const newTransaction: Transaction = {
@@ -52,36 +47,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setCategories(prev => [...prev, newCategory]);
   }, []);
 
-  const login = useCallback(() => {
-    setUser({
-      id: '1',
-      name: 'Demo User',
-      email: 'demo@financetracker.app',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo',
-      createdAt: new Date().toISOString(),
-    });
-    setIsAuthenticated(true);
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    setIsAuthenticated(false);
-  }, []);
-
   return (
     <FinanceContext.Provider
       value={{
-        user,
-        setUser,
         transactions,
         addTransaction,
         updateTransaction,
         deleteTransaction,
         categories,
         addCategory,
-        isAuthenticated,
-        login,
-        logout,
       }}
     >
       {children}
@@ -96,3 +70,4 @@ export const useFinance = () => {
   }
   return context;
 };
+

@@ -4,6 +4,7 @@ import { SpendingChart } from '@/components/dashboard/SpendingChart';
 import { CategoryChart } from '@/components/dashboard/CategoryChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { useFinance } from '@/contexts/FinanceContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { getDashboardStats } from '@/data/mockData';
 import { Wallet, TrendingUp, TrendingDown, CreditCard, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,8 @@ import { useState } from 'react';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
 
 const Dashboard = () => {
-  const { transactions, user } = useFinance();
+  const { transactions } = useFinance();
+  const { user } = useAuth();
   const stats = getDashboardStats(transactions);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
 
@@ -31,7 +33,7 @@ const Dashboard = () => {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground lg:text-3xl">
-              Welcome back, {user?.name?.split(' ')[0] || 'User'}
+              Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
             </h1>
             <p className="mt-1 text-muted-foreground">
               Here's what's happening with your finances
