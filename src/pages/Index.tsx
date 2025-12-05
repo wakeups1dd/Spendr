@@ -87,10 +87,10 @@ const Index = () => {
 
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
-              <Wallet className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary">
+              <Wallet className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">Spendr</span>
+            <span className="text-2xl font-bold text-foreground">Spendr</span>
           </div>
         </nav>
 
