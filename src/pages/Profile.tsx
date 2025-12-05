@@ -195,7 +195,7 @@ const Profile = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
                 <div className="relative">
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-border bg-secondary">
                     <img
@@ -213,7 +213,7 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="text-center sm:text-left">
                   <h3 className="text-xl font-semibold text-foreground">
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                   </h3>
@@ -282,19 +282,34 @@ const Profile = () => {
               <CardTitle>Account Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
-                <span className="text-sm text-muted-foreground">Total Transactions</span>
-                <span className="font-semibold text-foreground">
+              <div className="flex items-center justify-between rounded-lg bg-secondary/50 p-4 transition-colors hover:bg-secondary">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <TrendingDown className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">Total Transactions</span>
+                </div>
+                <span className="font-bold text-foreground">
                   {transactions.length}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
-                <span className="text-sm text-muted-foreground">Categories</span>
-                <span className="font-semibold text-foreground">10</span>
+              <div className="flex items-center justify-between rounded-lg bg-secondary/50 p-4 transition-colors hover:bg-secondary">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
+                    <Target className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">Categories</span>
+                </div>
+                <span className="font-bold text-foreground">10</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-secondary p-3">
-                <span className="text-sm text-muted-foreground">SMS Imports</span>
-                <span className="font-semibold text-foreground">
+              <div className="flex items-center justify-between rounded-lg bg-secondary/50 p-4 transition-colors hover:bg-secondary">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/10 text-green-500">
+                    <Smartphone className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">SMS Imports</span>
+                </div>
+                <span className="font-bold text-foreground">
                   {transactions.filter((t) => t.source === 'sms').length}
                 </span>
               </div>
