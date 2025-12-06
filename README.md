@@ -2,7 +2,6 @@
 
 **Spendr** is a modern, personal finance tracker designed to help you manage your money smarter. Track expenses, monitor income, and understand your spending patterns with beautiful, interactive charts.
 
-![Spendr Dashboard](/public/og-image.png)
 
 ## ✨ Features
 
