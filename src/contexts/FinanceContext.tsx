@@ -57,6 +57,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         date: t.date,
         notes: t.notes,
         source: t.source,
+        rawSms: t.raw_sms,
+        parsedJson: t.parsed_json,
         createdAt: t.created_at,
       }));
 
@@ -181,6 +183,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (updates.date) dbUpdates.date = updates.date;
       if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
       if (updates.source) dbUpdates.source = updates.source;
+      if (updates.rawSms !== undefined) dbUpdates.raw_sms = updates.rawSms;
+      if (updates.parsedJson !== undefined) dbUpdates.parsed_json = updates.parsedJson;
 
       const { error } = await supabase
         .from('transactions')

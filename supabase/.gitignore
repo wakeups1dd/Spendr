@@ -1,0 +1,7 @@
+# Supabase local development
+.supabase/
+*.local
+
+# Logs
+*.log
+

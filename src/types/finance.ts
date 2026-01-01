@@ -47,3 +47,50 @@ export interface DashboardStats {
   balance: number;
   transactionCount: number;
 }
+
+// SMS Parsing Types
+export interface SmsSyncSettings {
+  id: string;
+  userId: string;
+  phoneNumber?: string;
+  bankName?: string;
+  isActive: boolean;
+  lastSyncAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParsedTransactionQueue {
+  id: string;
+  userId: string;
+  rawSms: string;
+  parsedJson?: Record<string, unknown>;
+  confidenceScore?: number;
+  status: 'pending' | 'approved' | 'rejected' | 'duplicate';
+  suggestedTransaction?: {
+    amount: number;
+    type: TransactionType;
+    merchant: string;
+    date: string;
+    category?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParsedTransaction {
+  amount: number;
+  type: TransactionType;
+  merchant: string;
+  date: string;
+  category?: string;
+  confidence: number;
+  rawSms: string;
+  metadata?: {
+    accountNumber?: string;
+    referenceNumber?: string;
+    balance?: number;
+    bankName?: string;
+    [key: string]: unknown;
+  };
+}
