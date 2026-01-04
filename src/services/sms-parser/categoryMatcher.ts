@@ -176,3 +176,4 @@ export function suggestCategory(
   return 'Other Expense'; // Default fallback
 }
 
+

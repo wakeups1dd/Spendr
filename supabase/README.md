@@ -107,3 +107,4 @@ Access secrets in functions via `Deno.env.get("MY_SECRET_KEY")`.
 - **Function errors:** Check Deno logs and ensure environment variables are set
 - **RLS policies:** Ensure RLS policies are correctly configured for user access
 
+

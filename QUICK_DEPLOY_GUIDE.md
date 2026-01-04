@@ -82,3 +82,4 @@ However, using the CLI is recommended for easier updates.
 
 See `DEPLOY_EDGE_FUNCTION.md` for detailed instructions and troubleshooting.
 
+

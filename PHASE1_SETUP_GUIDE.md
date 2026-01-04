@@ -242,3 +242,4 @@ Access in functions via: `Deno.env.get("MY_SECRET")`
 - All database operations use Row Level Security (RLS) for data isolation per user.
 - The migration is idempotent - safe to run multiple times.
 
+

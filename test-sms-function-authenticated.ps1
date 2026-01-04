@@ -129,3 +129,4 @@ Write-Host ""
 Write-Host "💡 Tip: Get your JWT token from browser DevTools after logging into your app" -ForegroundColor Cyan
 Write-Host "   Look for: Local Storage → sb-<project>-auth-token → access_token" -ForegroundColor Gray
 
+

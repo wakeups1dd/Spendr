@@ -167,3 +167,4 @@ After successful deployment:
 - Functions have a default timeout (check Supabase limits)
 - Monitor usage in Supabase dashboard
 
+

@@ -83,3 +83,4 @@ export const genericBankPattern: BankPattern = {
   },
 };
 
+

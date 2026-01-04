@@ -73,3 +73,4 @@ curl.exe -i --location --request POST 'https://YOUR_PROJECT_REF.supabase.co/func
 - For frequent deployments, consider installing CLI globally via binary download
 - See `DEPLOYMENT_INSTRUCTIONS.md` for alternative installation methods
 
+

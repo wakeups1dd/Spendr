@@ -55,3 +55,4 @@ Write-Host "  1. Test the function (see DEPLOY_WITH_NPX.md)" -ForegroundColor Wh
 Write-Host "  2. Update your frontend to use the deployed function" -ForegroundColor White
 Write-Host "  3. Monitor function logs in Supabase Dashboard" -ForegroundColor White
 
+
