@@ -1,7 +1,9 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "$schema": "https://json.schemastore.org/package",
+  "name": "spendr",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Spendr - Personal Finance Application",
   "type": "module",
   "scripts": {
     "dev": "vite",
