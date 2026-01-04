@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
+import { SMSImportModal } from '@/components/transactions/SMSImportModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter, Download, Upload } from 'lucide-react';
+import { Plus, Search, Filter, Download, Upload, MessageSquare } from 'lucide-react';
 import { useFinance } from '@/contexts/FinanceContext';
 import { toast } from 'sonner';
 
 const Transactions = () => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [showSMSImport, setShowSMSImport] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -42,7 +44,29 @@ const Transactions = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* ... (keep existing header) */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground lg:text-3xl">Transactions</h1>
+            <p className="mt-1 text-muted-foreground">Monitor and manage your financial activity</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowSMSImport(true)}
+              className="gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Import from SMS
+            </Button>
+            <Button
+              className="gap-2"
+              onClick={() => setShowAddTransaction(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Transaction
+            </Button>
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center">
@@ -90,6 +114,11 @@ const Transactions = () => {
           categoryFilter={categoryFilter}
         />
       </div>
+
+      <SMSImportModal
+        open={showSMSImport}
+        onOpenChange={setShowSMSImport}
+      />
 
       <TransactionForm
         open={showAddTransaction}

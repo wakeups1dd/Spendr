@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import {
   Card,
   CardContent,
@@ -24,7 +25,9 @@ import {
   Loader2,
   Target,
   TrendingDown,
+  RefreshCw,
 } from 'lucide-react';
+import { smsService } from '@/services/smsService';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -53,13 +56,43 @@ const Profile = () => {
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState('');
 
-  // Load budget from localStorage
+  // SMS Sync Settings
+  const [smsSettings, setSmsSettings] = useState({
+    isActive: false,
+    phoneNumber: '',
+    bankName: '',
+  });
+  const [isUpdatingSms, setIsUpdatingSms] = useState(false);
+
+  // Load settings
   useEffect(() => {
-    const savedBudget = localStorage.getItem('spendr_monthly_budget');
-    if (savedBudget) {
-      setMonthlyBudget(parseFloat(savedBudget));
-    }
+    const fetchSmsSettings = async () => {
+      const data = await smsService.getSyncSettings();
+      if (data) {
+        setSmsSettings({
+          isActive: data.isActive,
+          phoneNumber: data.phoneNumber || '',
+          bankName: data.bankName || '',
+        });
+      }
+    };
+    fetchSmsSettings();
   }, []);
+
+  const handleUpdateSmsSettings = async (updates: any) => {
+    setIsUpdatingSms(true);
+    const newSettings = { ...smsSettings, ...updates };
+    const success = await smsService.updateSyncSettings(newSettings);
+    if (success) {
+      setSmsSettings(newSettings);
+      toast.success('SMS settings updated');
+    } else {
+      toast.error('Failed to update SMS settings');
+    }
+    setIsUpdatingSms(false);
+  };
+
+  // Load budget from localStorage
 
   // Calculate current month's expenses
   const currentMonthExpenses = transactions
@@ -427,37 +460,69 @@ const Profile = () => {
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="h-5 w-5" />
                 SMS Integration
-                <span className="ml-2 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  Coming Soon
-                </span>
               </CardTitle>
               <CardDescription>
                 Auto-import transactions from bank SMS messages
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-lg bg-secondary/50 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <Smartphone className="h-5 w-5" />
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="sms-sync" className="flex flex-col space-y-1">
+                  <span className="text-base font-semibold">Activate Auto-Sync</span>
+                  <span className="font-normal text-muted-foreground">
+                    Automatically process bank messages from your phone
+                  </span>
+                </Label>
+                <Switch
+                  id="sms-sync"
+                  checked={smsSettings.isActive}
+                  onCheckedChange={(checked) => handleUpdateSmsSettings({ isActive: checked })}
+                  disabled={isUpdatingSms}
+                />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sync-phone">Your Phone Number</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="sync-phone"
+                      placeholder="+91 99999 88888"
+                      value={smsSettings.phoneNumber}
+                      onChange={(e) => setSmsSettings({ ...smsSettings, phoneNumber: e.target.value })}
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => handleUpdateSmsSettings({})}
+                      disabled={isUpdatingSms}
+                      className="shrink-0"
+                    >
+                      {isUpdatingSms ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Update'}
+                    </Button>
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      Android App In Development
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      We're building a companion app to automatically sync your bank SMS
-                    </p>
+                  <p className="text-xs text-muted-foreground">
+                    The number that receives bank alerts. Used for secure parsing.
+                  </p>
+                </div>
+
+                <div className="rounded-lg bg-secondary/30 p-4 border border-border/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Smartphone className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground text-sm">
+                        Android App Recommended
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Use our Android companion app to mirror bank SMS to Spendr securely.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <Button variant="outline" className="w-full gap-2" disabled>
-                <Download className="h-4 w-4" />
-                Coming Soon
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                For now, you can manually add transactions or import from CSV
-              </p>
             </CardContent>
           </Card>
         </div>

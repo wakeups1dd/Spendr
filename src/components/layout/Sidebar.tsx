@@ -9,17 +9,35 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { smsService } from '@/services/smsService';
+import { useState, useEffect } from 'react';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { path: '/categories', label: 'Categories', icon: Tags },
+  { path: '/sms-queue', label: 'SMS Queue', icon: Wallet, isQueue: true },
   { path: '/profile', label: 'Profile', icon: User },
 ];
 
 export const Sidebar = ({ className }: { className?: string }) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      if (user) {
+        const pending = await smsService.getPendingTransactions();
+        setPendingCount(pending.length);
+      }
+    };
+    fetchPending();
+
+    // Refresh every minute
+    const interval = setInterval(fetchPending, 60000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <aside className={cn("flex h-full w-64 flex-col border-r border-border bg-card", className)}>
@@ -43,14 +61,24 @@ export const Sidebar = ({ className }: { className?: string }) => {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               )}
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <div className="flex items-center gap-3">
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </div>
+              {item.isQueue && pendingCount > 0 && (
+                <span className={cn(
+                  "flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold",
+                  isActive ? "bg-white text-primary" : "bg-primary text-white"
+                )}>
+                  {pendingCount}
+                </span>
+              )}
             </NavLink>
           );
         })}
